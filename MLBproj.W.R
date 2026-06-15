@@ -31,3 +31,27 @@ hrs2$wp_delta <-ifelse(
 hrs2 = subset(hrs2, select = -c(delta_home_win_exp))
 hrs2 %>% relocate(pitch_name, .after = game_date)
 hrs2 <- hrs2 |> relocate(pitch_name, .after = game_date)
+hrs2$away_win_exp <- hrs2$bat_win_exp
+hrs2$away_win_exp <- 1 - hrs2$home_win_exp
+hrs2 <- hrs2 |> relocate(away_win_exp, .after = home_win_exp)
+hrs2$pit_win_exp <- 1 - hrs2$bat_win_exp
+hrs2 <- hrs2 |> relocate(pit_win_exp, .after = bat_win_exp)
+hrs2 <- hrs2 |> relocate(wp_delta, .after = bat_win_exp)
+am <- get_chadwick_lu()
+am$names <- paste(am$name_last, am$name_first, sep = ", ")
+am = subset(am, select = c(names, key_mlbam))
+am$key_mlbam <- as.integer(am$key_mlbam)
+hrs2 <- left_join(hrs2, am, by = c("pitcher" = "key_mlbam"))
+
+hrs2 <- hrs2 |> relocate(names, .after = player_name)
+hrs2 <- hrs2 |> rename(batter_name = player_name)
+hrs2 <- hrs2 |> rename(pitcher_name = names)
+hrs2 = subset(hrs2, select = -c(pitcher))
+hrs2$runners_on_base = (!is.na(hrs2$on_3b)) + (!is.na(hrs2$on_2b)) + (!is.na(hrs2$on_1b))
+hrs2$hr_rbi = 1 + hrs2$runners_on_base
+hrs2 <- hrs2 |> relocate(runners_on_base, .after = on_3b)
+hrs2 <- hrs2 |> relocate(hr_rbi, .after = runners_on_base)
+
+hrs2 <- hrs2 |> rename(on_1b = names.x)
+hrs2 <- hrs2 |> rename(on_2b = names.x.x)
+hrs2 <- hrs2 |> rename(on_3b = names.y.y)
