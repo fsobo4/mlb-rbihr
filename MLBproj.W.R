@@ -41,6 +41,7 @@ am <- get_chadwick_lu()
 am$names <- paste(am$name_last, am$name_first, sep = ", ")
 am = subset(am, select = c(names, key_mlbam))
 am$key_mlbam <- as.integer(am$key_mlbam)
+am <- am |> filter(!is.na(key_mlbam))
 hrs2 <- left_join(hrs2, am, by = c("pitcher" = "key_mlbam"))
 
 hrs2 <- hrs2 |> relocate(names, .after = player_name)
@@ -49,9 +50,19 @@ hrs2 <- hrs2 |> rename(pitcher_name = names)
 hrs2 = subset(hrs2, select = -c(pitcher))
 hrs2$runners_on_base = (!is.na(hrs2$on_3b)) + (!is.na(hrs2$on_2b)) + (!is.na(hrs2$on_1b))
 hrs2$hr_rbi = 1 + hrs2$runners_on_base
-hrs2 <- hrs2 |> relocate(runners_on_base, .after = on_3b)
+hrs2 <- hrs2 |> relocate(runners_on_base, .before = outs_when_up)
 hrs2 <- hrs2 |> relocate(hr_rbi, .after = runners_on_base)
 
-hrs2 <- hrs2 |> rename(on_1b = names.x)
-hrs2 <- hrs2 |> rename(on_2b = names.x.x)
-hrs2 <- hrs2 |> rename(on_3b = names.y.y)
+hrs2 <- hrs2 |>
+  left_join(am, by = c("on_1b" = "key_mlbam")) |>
+  select(-on_1b) |>
+  rename(on_1b = names) |>
+  relocate(on_1b, .after = game_year) |>
+  left_join(am, by = c("on_2b" = "key_mlbam")) |>
+  select(-on_2b) |>
+  rename(on_2b = names) |>
+  relocate(on_2b, .after = game_year) |>
+  left_join(am, by = c("on_3b" = "key_mlbam")) |>
+  select(-on_3b) |>
+  rename(on_3b = names) |>
+  relocate(on_3b, .after = game_year)
