@@ -1,0 +1,7 @@
+.Rhistory
+.Rapp.history
+.RData
+.RDataTmp
+.Rproj.user/
+*.db
+!data/.gitkeep
