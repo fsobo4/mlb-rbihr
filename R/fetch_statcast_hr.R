@@ -2,67 +2,192 @@ library(tidyverse)
 library(baseballr)
 library(lubridate)
 library(dplyr)
-hr08 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.08.csv", header = TRUE, sep = ",")
-hr09 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.09.csv", header = TRUE, sep = ",")
-hr10 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.10.csv", header = TRUE, sep = ",")
-hr11 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.11.csv", header = TRUE, sep = ",")
-hr12 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.12.csv", header = TRUE, sep = ",")
-hr13 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.13.csv", header = TRUE, sep = ",")
-hr14 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.14.csv", header = TRUE, sep = ",")
-hr15 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.15.csv", header = TRUE, sep = ",")
-hr16 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.16.csv", header = TRUE, sep = ",")
-hr17 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.17.csv", header = TRUE, sep = ",")
-hr18 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.18.csv", header = TRUE, sep = ",")
-hr19 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.19.csv", header = TRUE, sep = ",")
-hr20 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.20.csv", header = TRUE, sep = ",")
-hr21 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.21.csv", header = TRUE, sep = ",")
-hr22 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.22.csv", header = TRUE, sep = ",")
-hr23 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.23.csv", header = TRUE, sep = ",")
-hr24 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.24.csv", header = TRUE, sep = ",")
-hr25 <- read.csv("/Users/fsobo15/Library/CloudStorage/GoogleDrive-fsobo15@gmail.com/My Drive/CodeProjs/FullStack Docs/BSB Savant Data/hrdata.25.csv", header = TRUE, sep = ",")
-hrs <- bind_rows(hr08, hr09, hr10, hr11, hr12, hr13, hr14, hr15, hr16, hr17, hr18, hr19, hr20, hr21, hr22, hr23, hr24, hr25)
-hrs2 = subset(hrs, select = -c(pitch_type, release_pos_x, zone, release_pos_z, batter, events, description, spin_dir, spin_rate_deprecated, break_angle_deprecated, break_length_deprecated, type, hit_location, pfx_x, pfx_z, plate_x, plate_z, hc_x, hc_y, tfs_deprecated, tfs_zulu_deprecated, umpire, sv_id, vx0, vy0, vz0, ax, ay, az, sz_top, intercept_ball_minus_batter_pos_y_inches, intercept_ball_minus_batter_pos_x_inches, swing_path_tilt, attack_direction, attack_angle, arm_angle, api_break_x_batter_in, api_break_x_arm, api_break_z_with_gravity, batter_days_until_next_game, pitcher_days_until_next_game, batter_days_since_prev_game, pitcher_days_since_prev_game, age_bat_legacy, age_pit_legacy, home_score_diff, hyper_speed, delta_pitcher_run_exp, estimated_slg_using_speedangle, swing_length, bat_speed, spin_axis, of_fielding_alignment, if_fielding_alignment, post_fld_score, post_bat_score, fld_score, bat_score, launch_speed_angle, iso_value, babip_value, woba_denom, woba_value, estimated_woba_using_speedangle, estimated_ba_using_speedangle, release_pos_y, fielder_9, fielder_8, fielder_7, fielder_6, fielder_5, fielder_4, fielder_3, fielder_2, release_extension, release_spin_rate, effective_speed, launch_angle, launch_speed, hit_distance_sc, sz_bot))
-hrs2$game_date <- ymd(hrs2$game_date)
-hrs2$wp_delta <-ifelse(
-  hrs2$inning_top == "Bot",
-  hrs2$delta_home_win_exp, 
-  -hrs2$delta_home_win_exp
-)
-hrs2 = subset(hrs2, select = -c(delta_home_win_exp))
-hrs2 %>% relocate(pitch_name, .after = game_date)
-hrs2 <- hrs2 |> relocate(pitch_name, .after = game_date)
-hrs2$away_win_exp <- hrs2$bat_win_exp
-hrs2$away_win_exp <- 1 - hrs2$home_win_exp
-hrs2 <- hrs2 |> relocate(away_win_exp, .after = home_win_exp)
-hrs2$pit_win_exp <- 1 - hrs2$bat_win_exp
-hrs2 <- hrs2 |> relocate(pit_win_exp, .after = bat_win_exp)
-hrs2 <- hrs2 |> relocate(wp_delta, .after = bat_win_exp)
+library(DBI)
+library(RSQLite)
+
 am <- get_chadwick_lu()
 am$names <- paste(am$name_last, am$name_first, sep = ", ")
 am = subset(am, select = c(names, key_mlbam))
 am$key_mlbam <- as.integer(am$key_mlbam)
 am <- am |> filter(!is.na(key_mlbam))
-hrs2 <- left_join(hrs2, am, by = c("pitcher" = "key_mlbam"))
 
-hrs2 <- hrs2 |> relocate(names, .after = player_name)
-hrs2 <- hrs2 |> rename(batter_name = player_name)
-hrs2 <- hrs2 |> rename(pitcher_name = names)
-hrs2 = subset(hrs2, select = -c(pitcher))
-hrs2$runners_on_base = (!is.na(hrs2$on_3b)) + (!is.na(hrs2$on_2b)) + (!is.na(hrs2$on_1b))
-hrs2$hr_rbi = 1 + hrs2$runners_on_base
-hrs2 <- hrs2 |> relocate(runners_on_base, .before = outs_when_up)
-hrs2 <- hrs2 |> relocate(hr_rbi, .after = runners_on_base)
+con <- dbConnect(SQLite(), "hr_data_test.db")
 
-hrs2 <- hrs2 |>
-  left_join(am, by = c("on_1b" = "key_mlbam")) |>
-  select(-on_1b) |>
-  rename(on_1b = names) |>
-  relocate(on_1b, .after = game_year) |>
-  left_join(am, by = c("on_2b" = "key_mlbam")) |>
-  select(-on_2b) |>
-  rename(on_2b = names) |>
-  relocate(on_2b, .after = game_year) |>
-  left_join(am, by = c("on_3b" = "key_mlbam")) |>
-  select(-on_3b) |>
-  rename(on_3b = names) |>
-  relocate(on_3b, .after = game_year)
+dbExecute(con, " 
+CREATE TABLE IF NOT EXISTS homeruns (
+    game_date TEXT,
+    pitch_name TEXT,
+    release_speed REAL,
+    batter_name TEXT,
+    pitcher_name TEXT,
+    des TEXT,
+    game_type TEXT,
+    stand TEXT,
+    p_throws TEXT,
+    home_team TEXT,
+    away_team TEXT,
+    bb_type TEXT,
+    balls INTEGER,
+    strikes INTEGER,
+    game_year INTEGER,
+    on_3b TEXT,
+    on_2b TEXT,
+    on_1b TEXT,
+    runners_on_base INTEGER,
+    hr_rbi INTEGER,
+    outs_when_up INTEGER,
+    inning INTEGER,
+    inning_topbot TEXT,
+    --Next 2 columns are the primary key
+    --If database breaks, check here first
+    game_pk INTEGER NOT NULL,
+    at_bat_number INTEGER NOT NULL,
+    pitch_number INTEGER,
+    home_score INTEGER,
+    away_score INTEGER,
+    post_away_score INTEGER,
+    post_home_score INTEGER,
+    delta_run_exp REAL,
+    bat_score_diff INTEGER,
+    home_win_exp REAL,
+    away_win_exp REAL,
+    bat_win_exp REAL,
+    wp_delta REAL,
+    pit_win_exp REAL,
+    age_pit INTEGER,
+    age_bat INTEGER,
+    n_thruorder_pitcher INTEGER,
+    n_priorpa_thisgame_player_at_bat INTEGER,
+ PRIMARY KEY (game_pk, at_bat_number)   
+);")
+
+clean_hr_data <- function(df,am) {
+  df = subset(df, select = c(game_date, 
+                             pitch_name,
+                             release_speed,
+                             des,
+                             game_type,
+                             stand,
+                             player_name,
+                             p_throws,
+                             pitcher,
+                             home_team,
+                             away_team,
+                             bb_type,
+                             delta_home_win_exp,
+                             balls,
+                             strikes,
+                             game_year,
+                             on_3b,
+                             on_2b,
+                             on_1b,
+                             outs_when_up,
+                             inning,
+                             inning_topbot,
+                             game_pk,
+                             at_bat_number,
+                             pitch_number,
+                             home_score,
+                             away_score,
+                             post_away_score,
+                             post_home_score,
+                             delta_run_exp,
+                             bat_score_diff,
+                             home_win_exp,
+                             bat_win_exp,
+                             age_pit,
+                             age_bat,
+                             n_thruorder_pitcher,
+                             n_priorpa_thisgame_player_at_bat))
+  df$game_date <- ymd(df$game_date)
+  df$wp_delta <-ifelse(
+    df$inning_topbot == "Bot",
+    df$delta_home_win_exp, 
+    -df$delta_home_win_exp
+  )
+  df = subset(df, select = -c(delta_home_win_exp))
+  df <- df |> relocate(pitch_name, .after = game_date)
+  df$away_win_exp <- 1 - df$home_win_exp
+  df <- df |> relocate(away_win_exp, .after = home_win_exp)
+  df$pit_win_exp <- 1 - df$bat_win_exp
+  df <- df |> relocate(pit_win_exp, .after = bat_win_exp)
+  df <- df |> relocate(wp_delta, .after = bat_win_exp)
+  df <- left_join(df, am, by = c("pitcher" = "key_mlbam"))
+  
+  df <- df |> relocate(names, .after = player_name)
+  df <- df |> rename(batter_name = player_name)
+  df <- df |> rename(pitcher_name = names)
+  df = subset(df, select = -c(pitcher))
+  df$runners_on_base = (!is.na(df$on_3b)) + (!is.na(df$on_2b)) + (!is.na(df$on_1b))
+  df$hr_rbi = 1 + df$runners_on_base
+  df <- df |> relocate(runners_on_base, .before = outs_when_up)
+  df <- df |> relocate(hr_rbi, .after = runners_on_base)
+  
+  df <- df |>
+    left_join(am, by = c("on_1b" = "key_mlbam")) |>
+    select(-on_1b) |>
+    rename(on_1b = names) |>
+    relocate(on_1b, .after = game_year) |>
+    left_join(am, by = c("on_2b" = "key_mlbam")) |>
+    select(-on_2b) |>
+    rename(on_2b = names) |>
+    relocate(on_2b, .after = game_year) |>
+    left_join(am, by = c("on_3b" = "key_mlbam")) |>
+    select(-on_3b) |>
+    rename(on_3b = names) |>
+    relocate(on_3b, .after = game_year)
+}
+
+fetch_hr_year <- function(year) {
+  start <- if (year == 2008) {
+    "2008-03-25"
+    } else {
+    paste0(year,"-03-01")}
+
+  year_starts <- seq.Date(as.Date(start), as.Date(paste0(year,"-11-30")), by = "7 days")
+  
+  yearly_data <- list()
+
+  for (i in seq_along(year_starts)) {
+    year_start <- year_starts[i]
+    year_end <- year_starts[i] + 6
+    cat("Year:", year, "| Fetching:", as.character(year_start), "to", as.character(year_end), "\n")
+    
+    
+    year_data <- tryCatch({ 
+      statcast_search(
+        start_date = as.character(year_start), 
+        end_date = as.character(year_end), 
+        player_type = "batter"
+      )
+      }, error = function(e) {
+        cat("Failed:", as.character(year_start), "- ", conditionMessage(e), "\n")
+        NULL
+      })
+    
+    if(!is.null(year_data) && nrow(year_data) >0) {
+        year_data <- filter(year_data, events == "home_run")
+        if(nrow(year_data) > 0) {
+          yearly_data[[i]] <- clean_hr_data(year_data, am)
+          }
+      }
+    Sys.sleep(3)
+  }
+  bind_rows(yearly_data)
+}
+
+for (year in 2008:2025) {
+        cat("Fetching year:", year, "\n")
+
+        year_data <- fetch_hr_year(year)
+
+        if (nrow(year_data) > 0) {
+            dbWriteTable(con, "homeruns_staging", year_data, overwrite = TRUE)
+            dbExecute(con, "INSERT OR IGNORE INTO homeruns SELECT * FROM homeruns_staging")
+            dbExecute(con, "DROP TABLE homeruns_staging")
+            cat("Written:", year, "- rows added:", nrow(year_data), "\n")
+        } else {
+            cat("No data for year:", year, "\n")
+        }
+    }
+dbDisconnect(con)
