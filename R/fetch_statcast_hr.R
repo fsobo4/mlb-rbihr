@@ -1,17 +1,16 @@
-library(tidyverse)
-library(baseballr)
-library(lubridate)
-library(dplyr)
-library(DBI)
-library(RSQLite)
-
+required_packages <- c("tidyverse", "baseballr", "RSQLite", "DBI", "lubridate")  # swap in whatever a given script needs
+missing_packages <- required_packages[!required_packages %in% rownames(installed.packages())]
+if (length(missing_packages) > 0) {
+  install.packages(missing_packages)
+}
+invisible(lapply(required_packages, library, character.only = TRUE))
 am <- get_chadwick_lu()
 am$names <- paste(am$name_last, am$name_first, sep = ", ")
 am = subset(am, select = c(names, key_mlbam))
 am$key_mlbam <- as.integer(am$key_mlbam)
 am <- am |> filter(!is.na(key_mlbam))
 
-con <- dbConnect(SQLite(), "hr_data_test.db")
+con <- dbConnect(SQLite(), "hr_data.db")
 
 dbExecute(con, " 
 CREATE TABLE IF NOT EXISTS homeruns (
@@ -99,7 +98,8 @@ clean_hr_data <- function(df,am) {
                              age_bat,
                              n_thruorder_pitcher,
                              n_priorpa_thisgame_player_at_bat))
-  df$game_date <- ymd(df$game_date)
+  df$game_date <- format(ymd(df$game_date), "%Y-%m-%d")
+  df$pitch_name[is.na(df$pitch_name)] <- "N/A"
   df$wp_delta <-ifelse(
     df$inning_topbot == "Bot",
     df$delta_home_win_exp, 
@@ -107,13 +107,12 @@ clean_hr_data <- function(df,am) {
   )
   df = subset(df, select = -c(delta_home_win_exp))
   df <- df |> relocate(pitch_name, .after = game_date)
-  df$away_win_exp <- 1 - df$home_win_exp
+  df$away_win_exp <- round(1 - df$home_win_exp, 3)
   df <- df |> relocate(away_win_exp, .after = home_win_exp)
-  df$pit_win_exp <- 1 - df$bat_win_exp
+  df$pit_win_exp <- round(1 - df$bat_win_exp, 3)
   df <- df |> relocate(pit_win_exp, .after = bat_win_exp)
   df <- df |> relocate(wp_delta, .after = bat_win_exp)
   df <- left_join(df, am, by = c("pitcher" = "key_mlbam"))
-  
   df <- df |> relocate(names, .after = player_name)
   df <- df |> rename(batter_name = player_name)
   df <- df |> rename(pitcher_name = names)
@@ -155,7 +154,7 @@ fetch_hr_year <- function(year) {
     
     
     year_data <- tryCatch({ 
-      statcast_search(
+      quiet_statcast_search(
         start_date = as.character(year_start), 
         end_date = as.character(year_end), 
         player_type = "batter"
@@ -166,7 +165,7 @@ fetch_hr_year <- function(year) {
       })
     
     if(!is.null(year_data) && nrow(year_data) >0) {
-        year_data <- filter(year_data, events == "home_run")
+        year_data <- filter(year_data, events == "home_run", game_type != "S")
         if(nrow(year_data) > 0) {
           yearly_data[[i]] <- clean_hr_data(year_data, am)
           }
@@ -176,17 +175,114 @@ fetch_hr_year <- function(year) {
   bind_rows(yearly_data)
 }
 
+quiet_statcast_search <- function(...) {
+  sink(nullfile())
+  sink(nullfile(), type = "message")
+  on.exit({
+    sink(type = "message")
+    sink()
+  }, add = TRUE)
+  suppressWarnings(statcast_search(...))
+}
+
 for (year in 2008:2025) {
         cat("Fetching year:", year, "\n")
 
         year_data <- fetch_hr_year(year)
 
         if (nrow(year_data) > 0) {
+            year_data <- as.data.frame(year_data)
             dbWriteTable(con, "homeruns_staging", year_data, overwrite = TRUE)
-            dbExecute(con, "INSERT OR IGNORE INTO homeruns SELECT * FROM homeruns_staging")
-            dbExecute(con, "DROP TABLE homeruns_staging")
-            cat("Written:", year, "- rows added:", nrow(year_data), "\n")
-        } else {
+            dbExecute(con, "INSERT OR IGNORE INTO homeruns (
+              game_date, 
+              pitch_name, 
+              release_speed, 
+              batter_name, 
+              pitcher_name, 
+              des,
+              game_type, 
+              stand, 
+              p_throws, 
+              home_team, 
+              away_team, 
+              bb_type, 
+              balls, 
+              strikes,
+              game_year, 
+              on_3b, 
+              on_2b, 
+              on_1b, 
+              runners_on_base, 
+              hr_rbi, 
+              outs_when_up,
+              inning, 
+              inning_topbot, 
+              game_pk, 
+              at_bat_number, 
+              pitch_number, 
+              home_score,
+              away_score, 
+              post_away_score, 
+              post_home_score, 
+              delta_run_exp, 
+              bat_score_diff,
+              home_win_exp, 
+              away_win_exp, 
+              bat_win_exp, 
+              wp_delta, 
+              pit_win_exp, 
+              age_pit,
+              age_bat, 
+              n_thruorder_pitcher, 
+              n_priorpa_thisgame_player_at_bat
+            )
+            SELECT
+              game_date, 
+              pitch_name, 
+              release_speed, 
+              batter_name, 
+              pitcher_name, 
+              des,
+              game_type, 
+              stand, 
+              p_throws, 
+              home_team, 
+              away_team, 
+              bb_type, 
+              balls, 
+              strikes,
+              game_year, 
+              on_3b, 
+              on_2b, 
+              on_1b, 
+              runners_on_base, 
+              hr_rbi, 
+              outs_when_up,
+              inning, 
+              inning_topbot, 
+              game_pk, 
+              at_bat_number, 
+              pitch_number, 
+              home_score,
+              away_score, 
+              post_away_score, 
+              post_home_score, 
+              delta_run_exp, 
+              bat_score_diff,
+              home_win_exp, 
+              away_win_exp, 
+              bat_win_exp, 
+              wp_delta, 
+              pit_win_exp, 
+              age_pit,    
+              age_bat, 
+              n_thruorder_pitcher, 
+              n_priorpa_thisgame_player_at_bat
+            FROM homeruns_staging
+          ")
+          dbExecute(con, "DROP TABLE homeruns_staging")
+          cat("Written:", year, "- rows added:", nrow(year_data), "\n")
+          } else {
             cat("No data for year:", year, "\n")
         }
     }
