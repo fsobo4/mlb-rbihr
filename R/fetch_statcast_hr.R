@@ -1,9 +1,21 @@
-required_packages <- c("tidyverse", "baseballr", "RSQLite", "DBI", "lubridate")  # swap in whatever a given script needs
+required_packages <- c("tidyverse", "devtools", "RSQLite", "DBI", "lubridate", "paws")
 missing_packages <- required_packages[!required_packages %in% rownames(installed.packages())]
 if (length(missing_packages) > 0) {
   install.packages(missing_packages)
 }
 invisible(lapply(required_packages, library, character.only = TRUE))
+devtools::install_github("BillPetti/baseballr", ref = "development_branch")
+library("baseballr")
+quiet_statcast_search <- function(...) {
+  sink(nullfile())
+  sink(nullfile(), type = "message")
+  on.exit({
+    sink(type = "message")
+    sink()
+  }, add = TRUE)
+  suppressWarnings(statcast_search(...))
+}
+
 am <- get_chadwick_lu()
 am$names <- paste(am$name_last, am$name_first, sep = ", ")
 am = subset(am, select = c(names, key_mlbam))
@@ -175,16 +187,6 @@ fetch_hr_year <- function(year) {
   bind_rows(yearly_data)
 }
 
-quiet_statcast_search <- function(...) {
-  sink(nullfile())
-  sink(nullfile(), type = "message")
-  on.exit({
-    sink(type = "message")
-    sink()
-  }, add = TRUE)
-  suppressWarnings(statcast_search(...))
-}
-
 for (year in 2008:2025) {
         cat("Fetching year:", year, "\n")
 
@@ -281,9 +283,17 @@ for (year in 2008:2025) {
             FROM homeruns_staging
           ")
           dbExecute(con, "DROP TABLE homeruns_staging")
+          write.csv(year_data, "temp_export.csv", row.names = FALSE)
+          s3$put_object(
+            Bucket = "mlb-rbihr-data-lake",
+            Key = paste0("homeruns/year=", year, "/homeruns_", year, ".csv"),
+            Body = "temp_export.csv"
+          )
+          
           cat("Written:", year, "- rows added:", nrow(year_data), "\n")
           } else {
             cat("No data for year:", year, "\n")
         }
-    }
+}
+
 dbDisconnect(con)
