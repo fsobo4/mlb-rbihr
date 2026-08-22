@@ -6,15 +6,8 @@ if (length(missing_packages) > 0) {
 invisible(lapply(required_packages, library, character.only = TRUE))
 devtools::install_github("BillPetti/baseballr", ref = "development_branch")
 library("baseballr")
-quiet_statcast_search <- function(...) {
-  sink(nullfile())
-  sink(nullfile(), type = "message")
-  on.exit({
-    sink(type = "message")
-    sink()
-  }, add = TRUE)
-  suppressWarnings(statcast_search(...))
-}
+
+s3 <- paws::s3()
 
 am <- get_chadwick_lu()
 am$names <- paste(am$name_last, am$name_first, sep = ", ")
@@ -166,7 +159,7 @@ fetch_hr_year <- function(year) {
     
     
     year_data <- tryCatch({ 
-      quiet_statcast_search(
+      statcast_search(
         start_date = as.character(year_start), 
         end_date = as.character(year_end), 
         player_type = "batter"
@@ -283,9 +276,10 @@ for (year in 2008:2025) {
             FROM homeruns_staging
           ")
           dbExecute(con, "DROP TABLE homeruns_staging")
+          
           write.csv(year_data, "temp_export.csv", row.names = FALSE)
           s3$put_object(
-            Bucket = "mlb-rbihr-data-lake",
+            Bucket = "mlb-rbihr",
             Key = paste0("homeruns/year=", year, "/homeruns_", year, ".csv"),
             Body = "temp_export.csv"
           )

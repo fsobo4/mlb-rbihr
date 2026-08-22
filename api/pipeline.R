@@ -8,7 +8,13 @@ invisible(lapply(required_packages, library, character.only = TRUE))
 #* @apiTitle mlb-rbihr API
 #* @apiDescription API for updating mlb-rbihr database, powered by Baseball Savant
 
-db_path <- "/Users/fsobo15/Desktop/Git/data/hr_data_test.db"
+#* @filter cors
+cors <- function(res) {
+  res$setHeader("Access-Control-Allow-Origin", "*")
+  plumber::forward()
+}
+
+db_path <- "/Users/fsobo15/Desktop/Git/data/hr_data.db"
 query_db <- function(sql, params = list()) {
   con <- dbConnect(RSQLite::SQLite(), db_path)
   on.exit(dbDisconnect(con), add = TRUE)

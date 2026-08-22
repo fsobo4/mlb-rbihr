@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="rbihr.2.css" />
+        <title>MLB-RBIHR index</title>
+    </head>
+    <body>
+        <main>
+            <ul>
+                <li> <a href="index.html">The RBI Project</a></li>
+                <li> <a href="rbihr.about.html">Behind the scenes</a></li>
+                <li class="dropdown">
+                    <a href="javascript:void(0)" class="dropbtn">Quick links</a>
+                    <div class="dropdown-content">
+                        <a href="#">GitHub Repo</a>
+                        <a href="#">LinkedIn</a>
+                    </div>
+                    <span class="icon">
+                        <img src="icons/links.h.svg" alt="Home">
+                    </span>
+                </li>
+            </ul>
+            <script>
+                fetch('http://127.0.0.1:13008/homeruns/rbi-leaders')
+                .then(response => response.json())
+                .then(data => {console.log(data);
+                    const rbihr = data
+                    const table = document.getElementById("rbi-table");
+                    for (const rbihr of data) {
+                        const row = table.insertRow();
+                        const batter_nameCell = row.insertCell();
+                        const avg_rbi_per_hrCell = row.insertCell();
+                        
+                        batter_nameCell.textContent = rbihr.batter_name;
+                        avg_rbi_per_hrCell.textContent = rbihr.avg_rbi_per_hr;
+                    }})
+                .catch(error => {
+                    console.error("Failed to fetch table data:", error.message);
+                });
+            </script>
+            <div class="scroll-container">
+                <section class="chunk">The Table</section>
+            <table id="rbi-table" class="ws-table-all">
+                <tr>
+                    <th>Player</th>
+                    <th>RBI per HR hit</th>
+                </tr>
+            </table>
+                <section class="chunk">The Setup</section>
+            </div>
+        </main>
