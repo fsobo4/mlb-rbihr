@@ -1,19 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
 :root {
 	--primary: #006400; 
 	--accent: #38CF30;
 	--tertiary: #17fb13;
-	--bg: #F8F8F8;
+	--bga: #F8F8F8;
+	--bg: #DBDBDB;
 	--text: #161a1d;
 }
 
 body {
 	margin: 0;
 	padding: 0;
+	box-sizing: border-box;
 	min-height: 100vh;
-	background-color: var(--bg);
+	background-color: var(--bga);
 	color: var(--text);
-	font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
+	font-family: 'Roboto', sans-serif;
 	font-weight: 500;
+}
+
+.roboto-body {
+  font-family: "Roboto", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+.chunk {
+	width: 100%;
+	height: 100vh;
+	scroll-snap-align: start;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	gap:24px; 
+}
+
+.scroll-container {
+	scroll-snap-type: y mandatory;
+	overflow-y: scroll;
+	height: 100vh;
 }
 
 main {
@@ -22,6 +52,25 @@ main {
     overflow-x: hidden;
     overflow-y: auto;
     min-width: 0;
+}
+
+td, th {
+	vertical-align: top;
+}
+tr {
+	border-bottom: 1px solid black;
+}
+ 
+tr:nth-child(even) {
+	background-color: var(--accent);
+}
+
+tr:nth-child(odd) {
+	background-color: var(--bg);
+}
+tr:hover {background-color: var(--primary);
+	color: var(--bga);
+	transition: background 0.2s ease-in-out;
 }
 
 section {
@@ -87,7 +136,7 @@ ul li:last-child {
 
 ul li a {
 	display: block;
-	color: var(--bg);
+	color: var(--bga);
 	padding: 14px 16px;
 	text-decoration: none;
 }
@@ -131,7 +180,7 @@ li.dropdown {
 }
 
 .dropdown-content a {
-  color: var(--bg);
+  color: var(--bga);
   padding: 12px 16px;
   text-decoration: none;
   display: block;
@@ -153,7 +202,7 @@ li.dropdown {
 
 .active {
 	background-color: var(--accent);
-	color: var(--bg);
+	color: var(--bga);
 }
 
 .label {
@@ -167,4 +216,29 @@ li.dropdown {
 	opacity: 0;
 	transition: opacity 0.2s ease 0.1s;
 }
+	
+.stage-wrapper {
+	height: 300vh;
+	position: relative;
+}
 
+.stage {
+	position: sticky;
+	top: 0;
+	height: 100vh;
+	overflow: hidden;
+}
+
+.col {
+	position: absolute;
+	inset: 0;
+	opacity: 0;
+	transition: opacity 0.6s ease;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.col.active {
+	opacity: 1;
+}

@@ -8,6 +8,7 @@ invisible(lapply(required_packages, library, character.only = TRUE))
 #* @apiTitle mlb-rbihr API
 #* @apiDescription API for updating mlb-rbihr database, powered by Baseball Savant
 
+options("plumber.port" = 8000)
 #* @filter cors
 cors <- function(res) {
   res$setHeader("Access-Control-Allow-Origin", "*")

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="rbihr.css" />
+        <title>MLB-RBIHR index</title>
+    </head>
+    <body>
+        <main>
+            <ul>
+                <li> <a href="index.html">The RBI Project</a></li>
+                <li> <a href="rbihr.about.html">Behind the scenes</a></li>
+                <li class="dropdown">
+                    <a href="javascript:void(0)" class="dropbtn">Quick links</a>
+                    <div class="dropdown-content">
+                        <a href="#">GitHub Repo</a>
+                        <a href="#">LinkedIn</a>
+                    </div>
+                    <span class="icon">
+                        <img src="icons/links.h.svg" alt="Home">
+                    </span>
+                </li>
+            </ul>
+            <script>
+                const BASE_URL = 'http://127.0.0.1:8000';
+                function callendpoint(url, x, tableId) {
+                fetch(url)
+                .then(response => response.json())
+                .then(data => {console.log(data);
+                    const rbihr = data
+                    const table = document.getElementById(tableId);
+                    for (const rbihr of data) {
+                        const row = table.insertRow();
+                        const batter_nameCell = row.insertCell();
+                        const xCell = row.insertCell();
+                        console.log(rbihr)
+                        
+                        batter_nameCell.textContent = rbihr.batter_name;
+                        xCell.textContent = rbihr[x];
+                    }})
+                .catch(error => {
+                    console.error("Failed to fetch table data:", error.message);
+                });
+            }
+            </script>
+            
+            <div class="scroll-container">
+                <section class="chunk">
+                    <div class="leftpanel">
+                        <h2>The Table</h2>
+                        <table id="hr-table" class="ws-table-all">
+                            <script>
+                                callendpoint(BASE_URL + '/homeruns/leaders', 'hr_count', 'hr-table')
+                            </script>
+                            <tr>
+                                <th>Player</th>
+                                <th>Total HR hit since 2008</th>
+                            </tr>
+                        </table>
+                    </div>
+                </section>
+            </div>
+            
+            <div class="scroll-container">
+                <section class="chunk">
+                    <div class="middlepanel">
+                        <h2>The Math</h2>
+                        <table id="rbi-table" class="ws-table-all">
+                            <script>
+                                callendpoint(BASE_URL +'/homeruns/rbi-leaders', 'avg_rbi_per_hr', 'rbi-table')
+                            </script>
+                            <tr>
+                                <th>Player</th>
+                                <th>Avergage # of RBI per <br>HR hit since 2008</th>
+                            </tr>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <div class="scroll-container">
+                <section class="chunk">
+                    <div class="rightpanel">
+                        <h2>The Math</h2>
+                        <table id="rbi-table" class="ws-table-all">
+                            <script>
+                                callendpoint(BASE_URL +'/homeruns', 'hr_count', 'rbi-table')
+                            </script>
+                            <tr>
+                                <th>Player</th>
+                                <th>Avergage # of RBI per <br>HR hit since 2008</th>
+                            </tr>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
