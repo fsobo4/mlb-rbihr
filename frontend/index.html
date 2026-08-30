@@ -6,21 +6,12 @@
     </head>
     <body>
         <main>
-            <ul>
-                <li> <a href="index.html">The RBI Project</a></li>
-                <li> <a href="rbihr.about.html">Behind the scenes</a></li>
-                <li class="dropdown">
-                    <a href="javascript:void(0)" class="dropbtn">Quick links</a>
-                    <div class="dropdown-content">
-                        <a href="#">GitHub Repo</a>
-                        <a href="#">LinkedIn</a>
-                    </div>
-                    <span class="icon">
-                        <img src="icons/links.h.svg" alt="Home">
-                    </span>
-                </li>
-            </ul>
+
             <script>
+                window.onbeforeunload = function () {
+                    window.scrollTo(0,0);
+                }
+
                 const BASE_URL = 'http://127.0.0.1:8000';
                 function callendpoint(url, x, tableId) {
                 fetch(url)
@@ -59,23 +50,23 @@
                     </div>
 
                     <div class="col" data-index="1">
-                        <h2>The Math</h2>
-                            <table id="rbi-table" class="ws-table-all">
+                        <h2>The Regular Stuff</h2>
+                            <table id="hr-rbi-table" class="ws-table-all">
                                 <script>
-                                    callendpoint(BASE_URL +'/homeruns/rbi-leaders', 'avg_rbi_per_hr', 'rbi-table')
+                                    callendpoint(BASE_URL +'/homeruns/hr-rbi', 'total_rbi_from_hr', 'hr-rbi-table')
                                 </script>
                                 <tr>
                                     <th>Player</th>
-                                    <th>Avergage # of RBI per <br>HR hit since 2008</th>
+                                    <th>Total # of RBI from <br>HR hit since 2008</th>
                                 </tr>
                             </table>
                     </div>
 
                     <div class="col" data-index="2">
                         <h2>The Math</h2>
-                            <table id="general-table" class="ws-table-all">
+                            <table id="rbi-avg-table" class="ws-table-all">
                                 <script>
-                                    callendpoint(BASE_URL +'/homeruns', 'hr_count', 'general-table')
+                                    callendpoint(BASE_URL +'/homeruns/rbi-leaders', 'avg_rbi_per_hr', 'rbi-avg-table')
                                 </script>
                                 <tr>
                                     <th>Player</th>
@@ -85,4 +76,31 @@
                     </div>
                 </div>
             </div>
+            <script>           
+            const wrapper = document.querySelector('.stage-wrapper');
+            const cols =  document.querySelectorAll('.col');
+
+            function updateActiveColumn() {
+                const rect = wrapper.getBoundingClientRect();
+                const scrolledIntoWrapper = -rect.top;
+                const progress = scrolledIntoWrapper / (wrapper.offsetHeight - window.innerHeight);
+                const stepIndex = Math.min(2, Math.max(0, Math.floor(progress * 3)));
+
+                cols.forEach((col, i) => {
+                    col.classList.toggle('active', i === stepIndex);
+                });
+            }
+
+            window.addEventListener('scroll', updateActiveColumn);
+            updateActiveColumn();
+            </script>
+            <hr>
+                <ul>
+                    <li> <a href="index.html">The RBI Project</a></li>
+                    <li> <a href="https://github.com/fsobo4/mlb-rbihr">Project Github Repo</a></li>
+                        <span class="icon">
+                            <img src="icons/git.bga.svg" alt="Repo">
+                        </span>
+                    </li>
+            </ul>
         </main>

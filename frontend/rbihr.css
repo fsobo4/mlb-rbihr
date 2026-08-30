@@ -17,7 +17,7 @@ body {
 	background-color: var(--bga);
 	color: var(--text);
 	font-family: 'Roboto', sans-serif;
-	font-weight: 500;
+	font-weight: 400;
 }
 
 .roboto-body {
@@ -49,25 +49,50 @@ body {
 main {
     flex: 1;
     min-height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
+    /* overflow-x: hidden;  */
+    /* overflow-y: auto; */
     min-width: 0;
+}
+
+table {
+	border-radius: 16px;
+	overflow: hidden;
+	box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+th, td {
+	vertical-align: top; 
+	padding: 12px 8px;
+}
+
+td:not(:first-child) {
+	text-align: right;
+}
+
+th {
+	background-color: var(--primary);
+	color: var(--bga);
+	text-align: center;
+	font-weight: 600;
+	padding: 12px 16px;
 }
 
 td, th {
 	vertical-align: top;
 }
+
 tr {
 	border-bottom: 1px solid black;
 }
  
 tr:nth-child(even) {
-	background-color: var(--accent);
+	background-color: rgba(0,100,0,0.08);
 }
 
 tr:nth-child(odd) {
 	background-color: var(--bg);
 }
+
 tr:hover {background-color: var(--primary);
 	color: var(--bga);
 	transition: background 0.2s ease-in-out;
@@ -120,7 +145,7 @@ ul {
 	display: flex;
 	justify-content: center;
 	position: sticky;
-	top: 0;
+	bottom: 0;
 	width: 100%;
 }
 
@@ -187,7 +212,9 @@ li.dropdown {
   text-align: right;
 }
 
-.dropdown-content a:hover {background-color: var(--primary);}
+.dropdown-content a:hover {
+	background-color: var(--primary);
+}
 
 .dropdown:hover .dropdown-content {
   display: block;
@@ -200,8 +227,8 @@ li.dropdown {
 	
 }
 
-.active {
-	background-color: var(--accent);
+.nav-active {
+	background-color: var(--bga);
 	color: var(--bga);
 }
 
@@ -216,7 +243,7 @@ li.dropdown {
 	opacity: 0;
 	transition: opacity 0.2s ease 0.1s;
 }
-	
+
 .stage-wrapper {
 	height: 300vh;
 	position: relative;
@@ -224,7 +251,7 @@ li.dropdown {
 
 .stage {
 	position: sticky;
-	top: 0;
+	top: 60px;
 	height: 100vh;
 	overflow: hidden;
 }
@@ -233,12 +260,16 @@ li.dropdown {
 	position: absolute;
 	inset: 0;
 	opacity: 0;
-	transition: opacity 0.6s ease;
+	transition: opacity 0.35s ease;
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	flex-direction: row;
+	pointer-events: none;
 }
 
 .col.active {
 	opacity: 1;
+	transition: opacity 0.35s ease 0.35s;
+	pointer-events: auto;
 }

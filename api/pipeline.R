@@ -28,33 +28,24 @@ function() {
   list(status = "ok", message = "mlb-rbihr API is running")
 }
 
-#* Get home run records, optionally filtered by year, team, or batter
-#* @param year Season year (e.g. 2015)
-#* @param team Team abbreviation, matches either home or away team (e.g. TB)
-#* @param batter_name Batter name in "Last, First" format
-#* @get /homeruns
+#* Get leaders in total runs batted in from home runs
+#* @param limit Number of top players to return (default 10)
+#* @get /homeruns/hr-rbi
 
-function(year = NULL, team = NULL, batter_name = NULL) {
-  sql <- "SELECT * FROM homeruns WHERE 1=1"
-  params <- list()
-  
-  if (!is.null(year)) {
-    sql <- paste(sql, "AND game_year = ?")
-    params <- c(params, year)
-  }
-  
-  if (!is.null(team)) {
-    sql <- paste(sql, "AND (home_team = ? OR away_team = ?)")
-    params <- c(params, team, team)
-  }
-  
-  if (!is.null(batter_name)) {
-    sql <- paste(sql, "AND batter_name = ?")
-    params <- c(params, batter_name)
-  }
-  
-  query_db(sql, params = params)
+function(limit = 10) {
+  sql <- "
+  SELECT batter_name,
+    COUNT (*) AS hr_count,
+    SUM(hr_rbi) AS total_rbi_from_hr
+  FROM homeruns
+  GROUP BY batter_name
+  ORDER BY total_rbi_from_hr DESC
+  LIMIT ?
+  "
+
+  query_db(sql, params = list(as.integer(limit)))
 }
+
 
 #* Get home run leaders for a given year
 #* @param year Season year (e.g. 2015)
@@ -79,10 +70,10 @@ function(year = NULL, limit = 10) {
 
 #* Get top batters by average RBI produced per home run
 #* @param limit Number of top players to return (default 10)
-#* @param min_hr Minimum home runs required to qualify (default 10)
+#* @param min_hr Minimum home runs required to qualify (default 25)
 #* @get /homeruns/rbi-leaders
 
-function(limit = 10, min_hr = 10) {
+function(limit = 10, min_hr = 25) {
   sql <- "
   SELECT batter_name,
     COUNT (*) AS hr_count,
@@ -96,4 +87,3 @@ function(limit = 10, min_hr = 10) {
   "
   query_db(sql, params = list(as.integer(min_hr), as.integer(limit)))
 }
-
