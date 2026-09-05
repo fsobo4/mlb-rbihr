@@ -29,7 +29,7 @@ function() {
 }
 
 #* Get leaders in total runs batted in from home runs
-#* @param limit Number of top players to return (default 10)
+#* @param limi?t Number of top players to return (default 10)
 #* @get /homeruns/hr-rbi
 
 function(limit = 10) {
