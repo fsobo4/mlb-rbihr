@@ -3,7 +3,7 @@
 #.RData
 .RDataTmp
 .Rproj.user/
-*.db
+#*.db
 !data/.gitkeep
 .Renviron
 .httr-oauth
