@@ -15,7 +15,7 @@ cors <- function(res) {
   plumber::forward()
 }
 
-db_path <- "/Users/fsobo15/Desktop/Git/data/hr_data.db"
+db_path <- "/data/hr_data.db"
 query_db <- function(sql, params = list()) {
   con <- dbConnect(RSQLite::SQLite(), db_path)
   on.exit(dbDisconnect(con), add = TRUE)
