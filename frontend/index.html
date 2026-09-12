@@ -12,7 +12,7 @@
                     window.scrollTo(0,0);
                 }
 
-                const BASE_URL = 'https://67.205.134.231:8000';
+                const BASE_URL = 'https://api.the-rbi-project.com';
                 function callendpoint(url, x, tableId) {
                 fetch(url)
                 .then(response => response.json())
@@ -37,6 +37,7 @@
             <div class="header">
                 <div class="progress-container">
                     <div class="progress-bar" id="myBar"></div>
+                    <div class="tick-container" id="tickContainer"></div>
                 </div>
             </div>
 
@@ -106,7 +107,7 @@
             window.addEventListener('scroll', updateActiveColumn);
             updateActiveColumn();
 
-            window.onscroll = function() {myFunction()};
+            /*window.onscroll = function() {myFunction()};
 
             function myFunction() {
                 var winScroll = document.body.scrollTop ||
@@ -115,6 +116,33 @@
             document.documentElement.clientHeight;
                 var scrolled = (winScroll / height) * 100;
                 document.getElementById("myBar").style.width = scrolled + "%";
+            } */
+
+            const chunks = document.querySelectorAll('.chunk');
+            const totalChunks = chunks.length;
+
+            window.onscroll = function() {
+                myFunction();
+            };
+
+            function myFunction() {
+                var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                var progress = winScroll / height; 
+
+                var currentChunk = Math.min(totalChunks - 1, Math.floor(progress * totalChunks));
+                var stepWidth = ((currentChunk + 1) / totalChunks) * 100;
+                
+                document.getElementById("myBar").style.width = stepWidth + '%';
+            }
+
+            const tickContainer = document.getElementbyId('tickContainer');
+            
+            for (let i = 1; i < totalChunks; i++) {
+                const tick = document.createElement('div');
+                tick.className = 'tick';
+                tick.style.left = (i / totalChunks * 100) + '%';
+                tickContainer.appendChild(tick);
             }
             </script>
                 <ul>

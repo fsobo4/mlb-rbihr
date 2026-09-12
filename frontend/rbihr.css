@@ -290,6 +290,10 @@ li a:hover, .dropdown:hover .dropbtn {
 	gap: 8px;
 }
 
+#myBar {
+	transition: width 0.4s ease;
+}
+
 .nav-active {
 	background-color: var(--bga);
 	color: var(--bga);
