@@ -12,7 +12,7 @@
                     window.scrollTo(0,0);
                 }
 
-                const BASE_URL = 'http://127.0.0.1:8000';
+                const BASE_URL = 'http://67.205.134.231:8000';
                 function callendpoint(url, x, tableId) {
                 fetch(url)
                 .then(response => response.json())
@@ -34,10 +34,22 @@
             }
             </script>
             
+            <div class="header">
+                <div class="progress-container">
+                    <div class="progress-bar" id="myBar"></div>
+                </div>
+            </div>
+
             <div class="stage-wrapper">
                 <div class="stage">
                     <div class="col active" data-index="0">
-                        <h2>The Table</h2>
+                        <h2 class="typey">For years I've watched Major League Baseball and fallen in love with the big moments, especially home runs...
+                        <br> but I've always wondered, how effective is the home run REALLY?
+                        </h2>
+                    </div>
+
+                    <div class="col active" data-index="1">
+                        <h2 class="typey">The Table</h2>
                             <table id="hr-table" class="ws-table-all">
                                 <script>
                                     callendpoint(BASE_URL + '/homeruns/leaders', 'hr_count', 'hr-table')
@@ -49,8 +61,8 @@
                             </table>
                     </div>
 
-                    <div class="col" data-index="1">
-                        <h2>The Regular Stuff</h2>
+                    <div class="col" data-index="2">
+                        <h2 class="typey">The Regular Stuff</h2>
                             <table id="hr-rbi-table" class="ws-table-all">
                                 <script>
                                     callendpoint(BASE_URL +'/homeruns/hr-rbi', 'total_rbi_from_hr', 'hr-rbi-table')
@@ -62,8 +74,8 @@
                             </table>
                     </div>
 
-                    <div class="col" data-index="2">
-                        <h2>The Math</h2>
+                    <div class="col" data-index="3">
+                        <h2 class="typey">The Math</h2>
                             <table id="rbi-avg-table" class="ws-table-all">
                                 <script>
                                     callendpoint(BASE_URL +'/homeruns/rbi-leaders', 'avg_rbi_per_hr', 'rbi-avg-table')
@@ -84,7 +96,7 @@
                 const rect = wrapper.getBoundingClientRect();
                 const scrolledIntoWrapper = -rect.top;
                 const progress = scrolledIntoWrapper / (wrapper.offsetHeight - window.innerHeight);
-                const stepIndex = Math.min(2, Math.max(0, Math.floor(progress * 3)));
+                const stepIndex = Math.min(3, Math.max(0, Math.floor(progress * 4)));
 
                 cols.forEach((col, i) => {
                     col.classList.toggle('active', i === stepIndex);
@@ -93,14 +105,24 @@
 
             window.addEventListener('scroll', updateActiveColumn);
             updateActiveColumn();
+
+            window.onscroll = function() {myFunction()};
+
+            function myFunction() {
+                var winScroll = document.body.scrollTop ||
+            document.documentElement.scrollTop;
+                var height = document.documentElement.scrollHeight -
+            document.documentElement.clientHeight;
+                var scrolled = (winScroll / height) * 100;
+                document.getElementById("myBar").style.width = scrolled + "%";
+            }
             </script>
-            <hr>
                 <ul>
-                    <li> <a href="index.html">The RBI Project</a></li>
+                    <li> <a class="glow-link" href="index.html">The RBI Project</a></li>
                     <li> <a href="https://github.com/fsobo4/mlb-rbihr">Project Github Repo</a></li>
                         <span class="icon">
                             <img src="icons/git.bga.svg" alt="Repo">
                         </span>
                     </li>
-            </ul>
+                </ul>
         </main>
