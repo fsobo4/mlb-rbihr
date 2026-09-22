@@ -142,53 +142,39 @@ clean_hr_data <- function(df,am) {
     relocate(on_3b, .after = game_year)
 }
 
-fetch_hr_year <- function(year) {
-  start <- if (year == 2008) {
-    "2008-03-25"
-    } else {
-    paste0(year,"-03-01")}
-
-  year_starts <- seq.Date(as.Date(start), as.Date(paste0(year,"-11-30")), by = "7 days")
-  
-  yearly_data <- list()
-
-  for (i in seq_along(year_starts)) {
-    year_start <- year_starts[i]
-    year_end <- year_starts[i] + 6
-    cat("Year:", year, "| Fetching:", as.character(year_start), "to", as.character(year_end), "\n")
+fetch_hrs <- function() {
+    cat("Fetching home runs from:", as.character(Sys.Date() - 1), "\n")
     
-    
-    year_data <- tryCatch({ 
+    day_data <- tryCatch({ 
       statcast_search(
-        start_date = as.character(year_start), 
-        end_date = as.character(year_end), 
+        start_date = as.character(Sys.Date() -1), 
+        end_date = as.character(Sys.Date()-1), 
         player_type = "batter"
       )
-      }, error = function(e) {
-        cat("Failed:", as.character(year_start), "- ", conditionMessage(e), "\n")
-        NULL
-      })
+    }, error = function(e) {
+      cat("Failed:", as.character(Sys.Date()), "- ", conditionMessage(e), "\n")
+      NULL
+    })
     
-    if(!is.null(year_data) && nrow(year_data) >0) {
-        year_data <- filter(year_data, events == "home_run", game_type != "S")
-        if(nrow(year_data) > 0) {
-          yearly_data[[i]] <- clean_hr_data(year_data, am)
-          }
-      }
-    Sys.sleep(3)
-  }
-  bind_rows(yearly_data)
+    if(!is.null(day_data) && nrow(day_data) >0) {
+      day_data <- filter(day_data, events == "home_run", game_type != "S")
+      if(nrow(day_data) > 0) {
+        day_data <- clean_hr_data(day_data, am)
+      } else {print(paste("No new home runs as of:", as.character(Sys.Date() - 1)))
+    }
+    bind_rows(day_data)
+    }
 }
 
-for (year in 2008:2025) {
-        cat("Fetching year:", year, "\n")
-
-        year_data <- fetch_hr_year(year)
-
-        if (nrow(year_data) > 0) {
-            year_data <- as.data.frame(year_data)
-            dbWriteTable(con, "homeruns_staging", year_data, overwrite = TRUE)
-            dbExecute(con, "INSERT OR IGNORE INTO homeruns (
+{
+  cat("Fetching:", as.character(Sys.Date() - 1), "\n")
+  
+  day_data <- fetch_hrs()
+  
+  if (!is.null(day_data) && nrow(day_data) > 0) {
+    day_data <- as.data.frame(day_data)
+    dbWriteTable(con, "homeruns_staging", day_data, overwrite = TRUE)
+    rows_inserted <- dbExecute(con, "INSERT OR IGNORE INTO homeruns (
               game_date, 
               pitch_name, 
               release_speed, 
@@ -275,19 +261,23 @@ for (year in 2008:2025) {
               n_priorpa_thisgame_player_at_bat
             FROM homeruns_staging
           ")
-          dbExecute(con, "DROP TABLE homeruns_staging")
-          
-          write.csv(year_data, "temp_export.csv", row.names = FALSE)
-          s3$put_object(
-            Bucket = "mlb-rbihr",
-            Key = paste0("homeruns/year=", year, "/homeruns_", year, ".csv"),
-            Body = "temp_export.csv"
-          )
-          
-          cat("Written:", year, "- rows added:", nrow(year_data), "\n")
-          } else {
-            cat("No data for year:", year, "\n")
-        }
+    dbExecute(con, "DROP TABLE homeruns_staging")
+    
+    write.csv(day_data, "temp_export.csv", row.names = FALSE)
+    s3$put_object(
+      Bucket = "mlb-rbihr",
+      Key = paste0(
+                  "homeruns/year=", as.character(format(Sys.Date() - 1, "%Y")), 
+                  "/month=", as.character(format(Sys.Date() - 1, "%m")),
+                  "/day=", as.character(format(Sys.Date() - 1, "%d")), 
+                  "/homeruns_", as.character(format(Sys.Date() - 1, usetz = FALSE)), 
+                  ".csv"),
+      Body = "temp_export.csv"
+    )
+    
+    cat("Databases have been updated with home runs from", as.character(format(Sys.Date() - 1)), "\n")
+  } else {
+    cat("No data home runs for:", as.character(format(Sys.Date() - 1)), "\n")
+  }
 }
-
-dbDisconnect(con)
+print(rows_inserted)

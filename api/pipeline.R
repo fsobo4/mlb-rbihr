@@ -11,7 +11,7 @@ invisible(lapply(required_packages, library, character.only = TRUE))
 options("plumber.port" = 8000)
 #* @filter cors
 cors <- function(res) {
-  res$setHeader("Access-Control-Allow-Origin", "*")
+  res$setHeader("Access-Control-Allow-Origin", "https://the-rbi-project.com")
   plumber::forward()
 }
 

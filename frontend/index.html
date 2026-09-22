@@ -118,7 +118,7 @@
                 document.getElementById("myBar").style.width = scrolled + "%";
             } */
 
-            const chunks = document.querySelectorAll('.chunk');
+            const chunks = document.querySelectorAll('.col');
             const totalChunks = chunks.length;
 
             window.onscroll = function() {
@@ -136,7 +136,7 @@
                 document.getElementById("myBar").style.width = stepWidth + '%';
             }
 
-            const tickContainer = document.getElementbyId('tickContainer');
+            const tickContainer = document.getElementById('tickContainer');
             
             for (let i = 1; i < totalChunks; i++) {
                 const tick = document.createElement('div');
