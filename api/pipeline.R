@@ -1,10 +1,9 @@
-required_packages <- c("plumber", "DBI", "RSQLite", "rapidoc")
-missing_packages <- required_packages[!required_packages %in% rownames(installed.packages())]
-if (length(missing_packages) > 0) {
-  install.packages(missing_packages)
-}
-invisible(lapply(required_packages, library, character.only = TRUE))
-
+library(DBI)
+library(RSQLite)
+library(dplyr)
+library(lubridate)
+library(paws.storage)
+library(baseballr)
 #* @apiTitle mlb-rbihr API
 #* @apiDescription API for updating mlb-rbihr database, powered by Baseball Savant
 
@@ -86,4 +85,49 @@ function(limit = 10, min_hr = 25) {
   LIMIT ?
   "
   query_db(sql, params = list(as.integer(min_hr), as.integer(limit)))
+}
+
+#* Show HR total for the previous day 
+#* @param min_hr Minimum number of HRs hit for the day (1)
+#* @get /homeruns/hr-daily
+
+function(min_hr = 1) {
+    target_date <- as.character(Sys.Date() - 1)
+  sql <- "
+  SELECT 
+    COUNT (*) AS hr_count
+  FROM homeruns
+  WHERE game_date = ?
+  HAVING COUNT(*) >= ?
+  "
+  result <- query_db(sql, params = list(target_date, as.integer(min_hr)))
+  
+if (nrow(result) == 0) {
+  list(hr_count = 0, next_game = "TBD - schedule lookup function still in-progress")
+} else { 
+  result
+  }
+}
+
+#* Show RBI from HR total for the previous day 
+#* @param min_hr Minimum number of HRs hit for the day (1)
+#* @get /homeruns/hrrbi-daily
+
+function(min_hr = 1) {
+  target_date <- as.character(Sys.Date() - 1)
+  sql <- "
+  SELECT 
+    COUNT (*) AS hr_count,
+    SUM(hr_rbi) AS total_rbi
+  FROM homeruns
+  WHERE game_date = ?
+  HAVING COUNT(*) >= ?
+  "
+  result <- query_db(sql, params = list(target_date, as.integer(min_hr)))
+
+if (nrow(result) == 0) {
+  list(hr_count = 0, next_game = "TBD - schedule lookup function still in-progress")
+} else { 
+  result
+  }
 }
