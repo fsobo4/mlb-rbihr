@@ -13,7 +13,7 @@ am = subset(am, select = c(names, key_mlbam))
 am$key_mlbam <- as.integer(am$key_mlbam)
 am <- am |> filter(!is.na(key_mlbam))
 
-con <- dbConnect(SQLite(), "/app/hr_data.db")
+con <- dbConnect(SQLite(), "hr_data.db")
 
 dbExecute(con, " 
 CREATE TABLE IF NOT EXISTS homeruns (
